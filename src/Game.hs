@@ -14,7 +14,7 @@ import Player (Player(..))
 import SelfTyped (SelfTyped)
 
 newtype GameValue = GameValue {leftUtility :: Double}
-  deriving (Show)
+  deriving (Eq, Show)
 
 zeroGame :: GameValue
 zeroGame = GameValue 0
