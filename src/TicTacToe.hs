@@ -2,17 +2,13 @@ module TicTacToe
     ( TicTacToe(..)
     ) where
 
-import Data.Constraint (Dict(Dict))
 import Data.List (find)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Prelude hiding (Either(..))
 
-import Always (Always)
-import qualified Always
 import Game (Game(..), Next(End, Options), gameValue, zeroGame)
 import Player (Player(Left, Right))
-import qualified SelfTyped
 
 data TicTacToe = TicTacToe
 
@@ -58,8 +54,8 @@ playerFor = \case
 
 instance Game TicTacToe where
   data Position TicTacToe = Position Piece (Map Place Piece)
-  newtype Action TicTacToe p = Go Place
-  next TicTacToe (SelfTyped.get -> pos) = case winner pos of
+  newtype Action TicTacToe = Go Place
+  next TicTacToe pos = case winner pos of
     Just p  -> End $ gameValue (playerFor p) 1
     Nothing ->
       let acts = [Go p | p <- allPlaces, not $ taken p pos]
@@ -67,9 +63,8 @@ instance Game TicTacToe where
         []    -> End zeroGame
         _ : _ -> Options (playerFor $ turn pos) acts
 
-  makeMove TicTacToe (SelfTyped.get -> Position p m) (Go place) =
+  makeMove TicTacToe (Position p m) (Go place) =
     Position (opposite p) (Map.insert place p m)
   start TicTacToe = Position X Map.empty
 
-deriving instance Show (Action TicTacToe p)
-instance Always Show (Action TicTacToe) where dict = const Dict
+deriving instance Show (Action TicTacToe)

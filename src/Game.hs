@@ -11,7 +11,6 @@ import Data.Function.Pointless ((.:))
 import Prelude hiding (Either(..))
 
 import Player (Player(..))
-import SelfTyped (SelfTyped)
 
 newtype GameValue = GameValue {leftUtility :: Double}
   deriving (Eq, Show)
@@ -19,13 +18,13 @@ newtype GameValue = GameValue {leftUtility :: Double}
 zeroGame :: GameValue
 zeroGame = GameValue 0
 
-data Next g p = Options Player [Action g p] | End GameValue
+data Next g = Options Player [Action g] | End GameValue
 
 class Game g where
-  data Action g p
+  data Action g
   data Position g
-  next :: g -> SelfTyped (Position g) p -> Next g p
-  makeMove :: g -> SelfTyped (Position g) p -> Action g p -> Position g
+  next :: g -> Position g -> Next g
+  makeMove :: g -> Position g -> Action g -> Position g
   start :: g -> Position g
 
 gameValue :: Player -> Double -> GameValue

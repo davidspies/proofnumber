@@ -5,7 +5,6 @@ module Minimax
 import GHC.Stack (HasCallStack)
 
 import Game (Game, GameValue, Next(..), Position, makeMove, next, utility)
-import SelfTyped (SomeSelfTyped(..), selfTyped)
 import Strategy (Strategy(..))
 
 data Minimax g = Minimax
@@ -19,7 +18,7 @@ instance Game g => Strategy (Minimax g) g where
     End _ -> []
 
 posValue :: Game g => g -> Position g -> GameValue
-posValue g (selfTyped -> SomeSelfTyped pos) = case next g pos of
+posValue g pos = case next g pos of
   Options player acts ->
     let actValues = map (posValue g . makeMove g pos) acts
     in maximumOn (utility player) actValues

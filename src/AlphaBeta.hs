@@ -16,10 +16,9 @@ import Game
 import Player (PlayerMap)
 import qualified Player
 import Runnable (Runnable, runProxy)
-import SelfTyped (SelfTyped, SomeSelfTyped(..), selfTyped)
 import Strategy (Strategy(..))
 
-newtype OrderingRule g m = OrderingRule (forall p. [Action g p] -> m [Action g p])
+newtype OrderingRule g m = OrderingRule ([Action g] -> m [Action g])
 newtype AlphaBeta g m = AlphaBeta {mkOrderingRule :: forall s. m s (OrderingRule g (m s))}
 
 maxOn :: Ord b => (a -> b) -> a -> a -> a
@@ -28,12 +27,12 @@ maxOn f x y
   | otherwise = x
 
 instance (Game g, Runnable m) => Strategy (AlphaBeta g m) g where
-  decideMoves g AlphaBeta{mkOrderingRule} (pos :: SelfTyped (Position g) s) = case next g pos of
+  decideMoves g AlphaBeta{mkOrderingRule} pos = case next g pos of
     Options player acts -> runProxy $ \(Proxy :: Proxy t) -> do
       orderingRule@(OrderingRule r) <- mkOrderingRule
       ordered <- r acts
       let
-        search :: Action g s -> StateT (Maybe GameValue) (m t) GameValue
+        search :: Action g -> StateT (Maybe GameValue) (m t) GameValue
         search act = do
           gv <- State.get
           let pm = Player.fromList [(player, gv), (Player.opposite player, Nothing)]
@@ -53,11 +52,11 @@ posValue :: forall g m. (Monad m, Game g)
   => g -> OrderingRule g m -> PValues -> Position g -> m GameValue
 posValue g (OrderingRule orderIt) = go
   where
-    go bnds0 (selfTyped -> SomeSelfTyped (pos :: SelfTyped (Position g) s)) = case next g pos of
+    go bnds0 pos = case next g pos of
       Options player acts -> do
         ordered <- orderIt acts
         let
-          search :: PValues -> Action g s -> ExceptT GameValue m PValues
+          search :: PValues -> Action g -> ExceptT GameValue m PValues
           search bnds act = do
             result <- Except.lift $ go bnds $ makeMove g pos act
             let newBnds = Player.insert player (Just result) bnds
