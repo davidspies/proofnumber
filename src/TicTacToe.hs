@@ -8,11 +8,11 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Prelude hiding (Either(..))
 
+import Always (Always)
+import qualified Always
 import Game (Game(..), Next(End, Options), gameValue, zeroGame)
 import Player (Player(Left, Right))
 import qualified SelfTyped
-import ShowAll (ShowAll)
-import qualified ShowAll
 
 data TicTacToe = TicTacToe
 
@@ -72,4 +72,4 @@ instance Game TicTacToe where
   start TicTacToe = Position X Map.empty
 
 deriving instance Show (Action TicTacToe p)
-instance ShowAll (Action TicTacToe) where dict = const Dict
+instance Always Show (Action TicTacToe) where dict = const Dict

@@ -1,40 +1,47 @@
 module AlphaBeta
     ( AlphaBeta(..)
+    , OrderingRule(..)
     ) where
 
 import Control.Monad (foldM)
-import Control.Monad.State (State, runState)
+import Control.Monad.Except (ExceptT, runExceptT, throwError)
+import qualified Control.Monad.Except as Except
+import Control.Monad.State (StateT, runStateT)
 import qualified Control.Monad.State as State
 import Data.Maybe (fromJust)
+import Data.Proxy (Proxy(..))
 
 import Game
     (Action, Game, GameValue, Next(..), Position, makeMove, next, utility)
 import Player (PlayerMap)
 import qualified Player
+import Runnable (Runnable, runProxy)
 import SelfTyped (SelfTyped, SomeSelfTyped(..), selfTyped)
 import Strategy (Strategy(..))
 
-data AlphaBeta g = forall s. Strategy s g => AlphaBeta {orderingRule :: s}
+newtype OrderingRule g m = OrderingRule (forall p. [Action g p] -> m [Action g p])
+newtype AlphaBeta g m = AlphaBeta {mkOrderingRule :: forall s. m s (OrderingRule g (m s))}
 
 maxOn :: Ord b => (a -> b) -> a -> a -> a
 maxOn f x y
   | f y > f x = y
   | otherwise = x
 
-instance Game g => Strategy (AlphaBeta g) g where
-  decideMoves g ab@AlphaBeta{orderingRule} (pos :: SelfTyped (Position g) s) = case next g pos of
-    Options player _ ->
+instance (Game g, Runnable m) => Strategy (AlphaBeta g m) g where
+  decideMoves g AlphaBeta{mkOrderingRule} (pos :: SelfTyped (Position g) s) = case next g pos of
+    Options player acts -> runProxy $ \(Proxy :: Proxy t) -> do
+      orderingRule@(OrderingRule r) <- mkOrderingRule
+      ordered <- r acts
       let
-        ordered = decideMoves g orderingRule pos
-        go :: Action g s -> State (Maybe GameValue) GameValue
-        go act = do
+        search :: Action g s -> StateT (Maybe GameValue) (m t) GameValue
+        search act = do
           gv <- State.get
           let pm = Player.fromList [(player, gv), (Player.opposite player, Nothing)]
-              newValue = posValue g ab pm $ makeMove g pos act
+          newValue <- State.lift $ posValue g orderingRule pm $ makeMove g pos act
           State.modify (maxOn (fmap (utility player)) (Just newValue))
           return newValue
-        (moveValues, fromJust -> maxv) = runState (mapM go ordered) Nothing
-      in [act | (act, v) <- zip ordered moveValues, v == maxv]
+      (moveValues, fromJust -> maxv) <- runStateT (mapM search ordered) Nothing
+      return [act | (act, v) <- zip ordered moveValues, v == maxv]
     End _            -> []
 
 infty :: Double
@@ -42,24 +49,24 @@ infty = read "Infinity"
 
 type PValues = PlayerMap (Maybe GameValue)
 
-posValue :: forall g. Game g
-  => g -> AlphaBeta g -> PValues -> Position g -> GameValue
-posValue g ab@AlphaBeta{orderingRule} bnds0
-    (selfTyped -> SomeSelfTyped (pos :: SelfTyped (Position g) s)) = case next g pos of
-  Options player _ ->
-    let
-      ordered = decideMoves g orderingRule pos
-      go :: PValues -> Action g s -> Either PValues PValues
-      go bnds act = do
-        let result = posValue g ab bnds $ makeMove g pos act
-            newBnds = Player.insert player (Just result) bnds
-        if
-          | utility player result > maybe infty (utility player) (
-                bnds Player.! Player.opposite player) ->
-              Left newBnds
-          | utility player result > maybe (-infty) (utility player) (bnds Player.! player) ->
-              Right newBnds
-          | otherwise -> Right bnds
-      newbnds = either id id $ foldM go bnds0 ordered
-    in fromJust $ newbnds Player.! player
-  End v            -> v
+posValue :: forall g m. (Monad m, Game g)
+  => g -> OrderingRule g m -> PValues -> Position g -> m GameValue
+posValue g (OrderingRule orderIt) = go
+  where
+    go bnds0 (selfTyped -> SomeSelfTyped (pos :: SelfTyped (Position g) s)) = case next g pos of
+      Options player acts -> do
+        ordered <- orderIt acts
+        let
+          search :: PValues -> Action g s -> ExceptT GameValue m PValues
+          search bnds act = do
+            result <- Except.lift $ go bnds $ makeMove g pos act
+            let newBnds = Player.insert player (Just result) bnds
+            if
+              | utility player result > maybe infty (utility player) (
+                    bnds Player.! Player.opposite player) ->
+                  throwError result
+              | utility player result > maybe (-infty) (utility player) (bnds Player.! player) ->
+                  return newBnds
+              | otherwise -> return bnds
+        either id (fromJust . (Player.! player)) <$> runExceptT (foldM search bnds0 ordered)
+      End v               -> return v

@@ -1,13 +1,17 @@
 module Main where
 
+import qualified System.Random.PCG as Rand
+
+import AlphaBeta
+import qualified AlphaBeta.Ordering as Ordering
 import Game
-import Minimax
 import SelfTyped
 import Some
 import Strategy
 import TicTacToe
 
 main :: IO ()
-main =
+main = do
+  seed <- Rand.createSystemRandom >>= Rand.save
   print $ case selfTyped (start TicTacToe) of
-    SomeSelfTyped p -> map Some $ decideMoves TicTacToe Minimax p
+    SomeSelfTyped p -> map Some $ decideMoves TicTacToe (AlphaBeta $ Ordering.random seed) p

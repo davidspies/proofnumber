@@ -16,11 +16,13 @@ extra-source-files:
 
 default-extensions:
 - ExistentialQuantification
+- FlexibleContexts
 - FlexibleInstances
 - FunctionalDependencies
 - LambdaCase
 - MultiWayIf
 - NamedFieldPuns
+- Rank2Types
 - ScopedTypeVariables
 - StandaloneDeriving
 - TypeFamilies
@@ -38,8 +40,10 @@ dependencies:
 - constraints
 - containers
 - mtl
+- pcg-random
 - pointless-fun
 - reflection
+- vector
 
 library:
   source-dirs: src
