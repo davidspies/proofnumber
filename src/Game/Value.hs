@@ -1,7 +1,9 @@
 module Game.Value
     ( GameValue
     , gameValue
+    , lose
     , utility
+    , win
     , zeroGame
     ) where
 
@@ -20,6 +22,12 @@ utility :: Player -> GameValue -> Double
 utility = \case
   Left -> leftUtility
   Right -> negate . leftUtility
+
+lose :: Player -> GameValue
+lose p = gameValue p (-1)
+
+win :: Player -> GameValue
+win p = gameValue p 1
 
 zeroGame :: GameValue
 zeroGame = GameValue 0

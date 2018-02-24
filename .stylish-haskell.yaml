@@ -226,7 +226,6 @@ language_extensions:
 - FunctionalDependencies
 - LambdaCase
 - MultiParamTypeClasses
-- MultiWayIf
 - NamedFieldPuns
 - ScopedTypeVariables
 - TypeFamilies

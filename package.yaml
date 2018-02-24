@@ -20,7 +20,6 @@ default-extensions:
 - FlexibleInstances
 - FunctionalDependencies
 - LambdaCase
-- MultiWayIf
 - NamedFieldPuns
 - Rank2Types
 - ScopedTypeVariables
@@ -39,6 +38,7 @@ dependencies:
 - base >= 4.7 && < 5
 - constraints
 - containers
+- dlist
 - mtl
 - pcg-random
 - pointless-fun
