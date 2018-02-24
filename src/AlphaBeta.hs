@@ -8,14 +8,14 @@ import Control.Monad.Except (ExceptT, runExceptT, throwError)
 import qualified Control.Monad.Except as Except
 import Data.DList (DList)
 import qualified Data.DList as DList
-import Data.Proxy (Proxy(..))
 
 import Game (Action, Game, Next(..), Position, makeMove, next)
 import Game.Value (GameValue)
 import qualified Game.Value as GameValue
 import Player (PlayerMap)
 import qualified Player
-import Runnable (Runnable, runProxy)
+import Runnable (Runnable)
+import qualified Runnable
 import Strategy (Strategy(..))
 
 newtype OrderingRule g m = OrderingRule ([Action g] -> m [Action g])
@@ -34,7 +34,7 @@ startPValues = Player.fromList
 
 instance (Game g, Runnable m) => Strategy (AlphaBeta g m) g where
   decideMoves g AlphaBeta{mkOrderingRule} pos =
-    runProxy $ \(Proxy :: Proxy t) -> do
+    Runnable.run $ do
       orderingRule <- mkOrderingRule
       Selection acts _ <- posValue g orderingRule pos
       return $ DList.toList acts
