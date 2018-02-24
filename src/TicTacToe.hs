@@ -7,7 +7,8 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import Prelude hiding (Either(..))
 
-import Game (Game(..), Next(End, Options), gameValue, zeroGame)
+import Game (Game(..), Next(End, Options))
+import Game.Value (gameValue, zeroGame)
 import Player (Player(Left, Right))
 
 data TicTacToe = TicTacToe

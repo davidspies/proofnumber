@@ -9,17 +9,8 @@ import qualified Control.Monad.Except as Except
 import Data.Maybe (fromJust)
 import Data.Proxy (Proxy(..))
 
-import Game
-    ( Action
-    , Game
-    , GameValue
-    , Next(..)
-    , Position
-    , gameValue
-    , makeMove
-    , next
-    , utility
-    )
+import Game (Action, Game, Next(..), Position, makeMove, next)
+import Game.Value (GameValue, gameValue, utility)
 import Player (PlayerMap)
 import qualified Player
 import Runnable (Runnable, runProxy)

@@ -4,7 +4,8 @@ module Minimax
 
 import GHC.Stack (HasCallStack)
 
-import Game (Game, GameValue, Next(..), Position, makeMove, next, utility)
+import Game (Game, Next(..), Position, makeMove, next)
+import Game.Value (GameValue, utility)
 import Strategy (Strategy(..))
 
 data Minimax g = Minimax
