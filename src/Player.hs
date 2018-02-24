@@ -29,4 +29,6 @@ opposite = \case
 
 fromList :: [(Player, a)] -> PlayerMap a
 fromList =
-  foldl' (flip $ uncurry insert) (PlayerMap (error "uninitialized") (error "uninitialized"))
+  foldl'
+    (flip $ uncurry insert)
+    (PlayerMap (error "uninitialized") (error "uninitialized"))

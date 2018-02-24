@@ -15,8 +15,9 @@ class Always Monad m => Runnable (m :: * -> * -> *) where
 instance Runnable ST where
   run = runST
 
-runProxy :: forall m a. Runnable m => (forall s. Monad (m s) => Proxy s -> m s a) -> a
+runProxy :: forall m a. Runnable m
+  => (forall s. Monad (m s) => Proxy s -> m s a) -> a
 runProxy act = run go
   where
     go :: forall s. m s a
-    go = case Always.dict Proxy :: Dict (Monad (m s)) of Dict -> act Proxy
+    go = case Always.dict :: Dict (Monad (m s)) of Dict -> act Proxy
