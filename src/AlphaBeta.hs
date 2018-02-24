@@ -33,11 +33,17 @@ startPValues = Player.fromList
   ]
 
 instance (Game g, Runnable m) => Strategy (AlphaBeta g m) g where
-  decideMoves g AlphaBeta{mkOrderingRule} pos =
-    Runnable.run $ do
-      orderingRule <- mkOrderingRule
-      Selection acts _ <- posValue g orderingRule pos
-      return $ DList.toList acts
+  evaluate g ab pos =
+    let Selection _ v = evSelection g ab pos in v
+  decideMoves g ab pos =
+    let Selection acts _ = evSelection g ab pos in DList.toList acts
+
+evSelection :: (Game g, Runnable m)
+  => g -> AlphaBeta g m -> Position g -> Selection g
+evSelection g AlphaBeta{mkOrderingRule} pos =
+  Runnable.run $ do
+    orderingRule <- mkOrderingRule
+    posValue g orderingRule pos
 
 posValue :: forall g m. (Monad m, Game g)
   => g -> OrderingRule g m -> Position g -> m (Selection g)
