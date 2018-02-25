@@ -5,12 +5,14 @@ module Misere
 import Prelude hiding (negate)
 
 import Game
+import Game.Display
 import Game.Value.Internal
 
 negate :: GameValue -> GameValue
 negate (GameValue l) = GameValue (-l)
 
 newtype Misere g = Misere g
+  deriving (Display)
 
 instance Game g => Game (Misere g) where
   newtype Action (Misere g) = MisereAction (Action g)
@@ -23,3 +25,4 @@ instance Game g => Game (Misere g) where
   start (Misere g) = MiserePosition (start g)
 
 deriving instance Show (Action g) => Show (Action (Misere g))
+deriving instance Show (Position g) => Show (Position (Misere g))

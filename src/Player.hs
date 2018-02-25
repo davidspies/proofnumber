@@ -11,6 +11,7 @@ import Data.List (foldl')
 import Prelude hiding (Either(..))
 
 data Player = Left | Right
+  deriving (Show)
 data PlayerMap a = PlayerMap a a
 
 (!) :: PlayerMap a -> Player -> a
