@@ -94,23 +94,35 @@ negateOrdering = \case
 compareR :: Ord a => a -> LazyMax a -> IO Ordering
 compareR = fmap negateOrdering .: flip compareL
 
+data DefaultStep = StepLeft | StepRight | StepBoth
+
 ordHelper :: Ord a
-  => (a -> a -> b) -> (LazyMax a -> a -> IO b) -> (a -> LazyMax a -> IO b)
+  => (a -> a -> b)
+  -> (LazyMax a -> a -> IO b)
+  -> (a -> LazyMax a -> IO b)
+  -> DefaultStep
   -> LazyMax a -> LazyMax a -> b
-ordHelper f g h l@(LazyMax lr) r@(LazyMax rr) = unsafePerformIO go
+ordHelper f g h defaultStep l@(LazyMax lr) r@(LazyMax rr) = unsafePerformIO go
   where
     go = (,) <$> readIORef lr <*> readIORef rr >>= \case
       (Found x, Found y) -> return $ f x y
       (Finding{}, Found y) -> g l y
       (Found x, Finding{}) -> h x r
-      (Finding{best=lbest}, Finding{best=rbest}) ->
-        takeStep (if rbest < lbest then r else l) >> go
+      (Finding{best=lbest}, Finding{best=rbest}) -> do
+        case defaultStep of
+          StepLeft -> takeStep (if rbest < lbest then r else l)
+          StepRight -> takeStep (if lbest < rbest then l else r)
+          StepBoth -> case compare lbest rbest of
+            LT -> takeStep l
+            EQ -> takeStep l >> takeStep r
+            GT -> takeStep r
+        go
 
 instance Ord a => Eq (LazyMax a) where
   (==) x y = get x == get y
 instance Ord a => Ord (LazyMax a) where
-  compare = ordHelper compare compareL compareR
-  (<) = ordHelper (<) (?<*) (*<?)
-  (>) = ordHelper (>) (?>*) (*>?)
-  (<=) = ordHelper (<=) (?<=*) (*<=?)
-  (>=) = ordHelper (>=) (?>=*) (*>=?)
+  compare = ordHelper compare compareL compareR StepBoth
+  (<) = ordHelper (<) (?<*) (*<?) StepRight
+  (>) = ordHelper (>) (?>*) (*>?) StepLeft
+  (<=) = ordHelper (<=) (?<=*) (*<=?) StepLeft
+  (>=) = ordHelper (>=) (?>=*) (*>=?) StepRight
