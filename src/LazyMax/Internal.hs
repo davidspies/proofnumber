@@ -3,7 +3,7 @@
 module LazyMax.Internal
     ( LazyMax
     , get
-    , lazyMax
+    , lazyMaximum
     , pure
     , (?<), (?>), (?<=), (?>=)
     , (<?), (>?), (<=?), (>=?)
@@ -11,15 +11,16 @@ module LazyMax.Internal
 
 import Data.Function.Pointless ((.:))
 import Data.IORef (IORef, modifyIORef, newIORef, readIORef, writeIORef)
+import GHC.Stack (HasCallStack)
 import Prelude hiding (pure)
 import System.IO.Unsafe (unsafePerformIO)
 
 data LazyMaxI a = Finding{best :: a, remaining :: [a]} | Found a
 newtype LazyMax a = LazyMax (IORef (LazyMaxI a))
 
-lazyMax :: Ord a => [a] -> LazyMax a
-lazyMax = \case
-  [] -> error "lazyMax of empty list"
+lazyMaximum :: (HasCallStack, Ord a) => [a] -> LazyMax a
+lazyMaximum = \case
+  [] -> error "*** Exception: lazyMaximum: empty list"
   (best : remaining) -> LazyMax $ unsafePerformIO $ newIORef Finding{..}
 
 pure :: a -> LazyMax a
