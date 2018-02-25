@@ -15,7 +15,7 @@ extra-source-files:
 # category:            games
 
 default-extensions:
-- ExistentialQuantification
+- DeriveGeneric
 - FlexibleContexts
 - FlexibleInstances
 - FunctionalDependencies
@@ -37,15 +37,13 @@ ghc-options: -Werror -Wall
 
 dependencies:
 - base >= 4.7 && < 5
-- constraints
 - containers
 - dlist
+- hashable
 - MissingH
 - monad-loops
-- mtl
 - pcg-random
 - pointless-fun
-- reflection
 - vector
 
 library:

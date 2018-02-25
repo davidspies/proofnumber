@@ -2,6 +2,7 @@ module Misere
     ( Misere(..)
     ) where
 
+import Data.Hashable (Hashable)
 import Prelude hiding (negate)
 
 import Game (Game(..), Next(..))
@@ -25,4 +26,5 @@ instance Game g => Game (Misere g) where
   start (Misere g) = MiserePosition (start g)
 
 deriving instance Show (Action g) => Show (Action (Misere g))
+deriving instance Hashable (Position g) => Hashable (Position (Misere g))
 deriving instance Show (Position g) => Show (Position (Misere g))

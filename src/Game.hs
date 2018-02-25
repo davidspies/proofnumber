@@ -1,6 +1,7 @@
 module Game
     ( Game(..)
     , Next(..)
+    , getOptions
     ) where
 
 import Game.Value
@@ -14,3 +15,8 @@ class Game g where
   next :: g -> Position g -> Next g
   makeMove :: g -> Position g -> Action g -> Position g
   start :: g -> Position g
+
+getOptions :: Game g => g -> Position g -> [Action g]
+getOptions g pos = case next g pos of
+  End{}          -> []
+  Options _ acts -> acts

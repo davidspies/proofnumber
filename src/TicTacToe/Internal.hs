@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass #-}
+
 module TicTacToe.Internal
     ( TicTacToe(..)
     , Place
@@ -6,21 +8,24 @@ module TicTacToe.Internal
     , allPlaces
     ) where
 
+import Data.Hashable (Hashable)
 import Data.List (find)
 import Data.Map (Map)
 import qualified Data.Map as Map
+import GHC.Generics (Generic)
 import Prelude hiding (Either(..))
 
 import Game (Game(..), Next(End, Options))
 import Game.Value (gameValue, zeroGame)
+import Orphans ()
 import Player (Player(Left, Right))
 
 data TicTacToe = TicTacToe
 
 data Place = Place{row :: Int, col :: Int}
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Generic, Hashable, Ord, Show)
 data Piece = X | O
-  deriving (Eq, Enum, Bounded, Show)
+  deriving (Eq, Generic, Hashable, Enum, Bounded, Show)
 
 opposite :: Piece -> Piece
 opposite = \case
@@ -59,7 +64,7 @@ playerFor = \case
 
 instance Game TicTacToe where
   data Position TicTacToe = Position Piece (Map Place Piece)
-    deriving (Show)
+    deriving (Generic, Hashable, Show)
   newtype Action TicTacToe = Go Place
     deriving (Show)
   next TicTacToe pos = case winner pos of

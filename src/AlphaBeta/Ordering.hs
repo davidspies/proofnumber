@@ -3,12 +3,15 @@ module AlphaBeta.Ordering
     ) where
 
 import Control.Monad (forM_)
-import Control.Monad.ST (ST)
+import Control.Monad.ST (ST, runST)
+import Data.Hashable (Hashable, hash)
 import qualified Data.Vector as Vec
 import qualified Data.Vector.Mutable as MVec
+import Data.Word (Word64)
 import qualified System.Random.PCG as Rand
 
 import AlphaBeta
+import Game (Game, Position, getOptions)
 
 shuffle :: Rand.GenST s -> [a] -> ST s [a]
 shuffle g xs = do
@@ -19,7 +22,10 @@ shuffle g xs = do
     MVec.swap vec i j
   Vec.toList <$> Vec.freeze vec
 
-random :: forall g s. Rand.FrozenGen -> ST s (OrderingRule g (ST s))
-random seed = do
-  r <- Rand.restore seed
-  return $ OrderingRule (shuffle r)
+random :: forall g. (Game g, Hashable (Position g))
+  => Word64 -> g -> OrderingRule g
+random seed g pos = runST $ do
+    r <- Rand.initialize seed (fromIntegral $ hash pos)
+    shuffle r acts
+  where
+    acts = getOptions g pos

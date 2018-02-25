@@ -2,7 +2,7 @@
 
 module Main where
 
-import Control.Monad.ST (ST)
+import Data.Hashable (Hashable)
 import qualified System.Random.PCG as Rand
 
 import AlphaBeta
@@ -19,10 +19,10 @@ import TicTacToe
 getGame :: IO (Misere TicTacToe)
 getGame = return $ Misere TicTacToe
 
-getAgent :: g -> IO (AlphaBeta g ST)
-getAgent _ = do
-  seed <- Rand.createSystemRandom >>= Rand.save
-  return $ AlphaBeta $ Ordering.random seed
+getAgent :: (Game g, Hashable (Position g)) => g -> IO (AlphaBeta g)
+getAgent g = do
+  seed <- Rand.withSystemRandom Rand.uniformW64
+  return $ AlphaBeta $ Ordering.random seed g
 
 main :: IO ()
 main = do
