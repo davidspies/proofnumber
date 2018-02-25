@@ -4,9 +4,9 @@ module Misere
 
 import Prelude hiding (negate)
 
-import Game
-import Game.Display
-import Game.Value.Internal
+import Game (Game(..), Next(..))
+import Game.Display (Display)
+import Game.Value.Internal (GameValue(..))
 
 negate :: GameValue -> GameValue
 negate (GameValue l) = GameValue (-l)
