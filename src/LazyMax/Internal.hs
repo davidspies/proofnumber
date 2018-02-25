@@ -3,24 +3,28 @@
 module LazyMax.Internal
     ( LazyMax
     , get
-    , lazyMaximum
+    , maximum
+    , maximum'
     , pure
-    , (?<), (?>), (?<=), (?>=)
-    , (<?), (>?), (<=?), (>=?)
     ) where
 
+import Control.Monad (when)
 import Data.Function.Pointless ((.:))
-import Data.IORef (IORef, modifyIORef, newIORef, readIORef, writeIORef)
+import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import GHC.Stack (HasCallStack)
-import Prelude hiding (pure)
+import Prelude hiding (maximum, pure)
 import System.IO.Unsafe (unsafePerformIO)
 
-data LazyMaxI a = Finding{best :: a, remaining :: [a]} | Found a
+data LazyMaxI a =
+  Finding{best :: LazyMax a, remaining :: [LazyMax a]} | Found a
 newtype LazyMax a = LazyMax (IORef (LazyMaxI a))
 
-lazyMaximum :: (HasCallStack, Ord a) => [a] -> LazyMax a
-lazyMaximum = \case
-  [] -> error "*** Exception: lazyMaximum: empty list"
+maximum :: (HasCallStack, Ord a) => [a] -> LazyMax a
+maximum = maximum' . map pure
+
+maximum' :: (HasCallStack, Ord a) => [LazyMax a] -> LazyMax a
+maximum' = \case
+  [] -> error "*** Exception: maximum': empty list"
   (best : remaining) -> LazyMax $ unsafePerformIO $ newIORef Finding{..}
 
 pure :: a -> LazyMax a
@@ -29,59 +33,64 @@ pure = LazyMax . unsafePerformIO . newIORef . Found
 get :: Ord a => LazyMax a -> a
 get (LazyMax r) = unsafePerformIO $ readIORef r >>= \case
   Finding{best, remaining} -> do
-    let newbest = maximum (best : remaining)
+    -- Avoids infinite recursion
+    let newbest =
+          get $ foldl1 (\x y -> if y > x then y else x) (best : remaining)
     writeIORef r (Found newbest)
     return newbest
   Found x -> return x
 
+isSimple :: LazyMaxI a -> Bool
+isSimple = \case
+  Found{} -> True
+  Finding{remaining} -> null remaining
+
 takeStep :: Ord a => LazyMax a -> IO ()
-takeStep (LazyMax xref) = modifyIORef xref $ \case
-  x@Found{} -> x
-  Finding{best, remaining} -> case dropWhile (<= best) remaining of
-    []              -> Found best
-    res : remainder -> Finding{best=res, remaining=remainder}
+takeStep (LazyMax xref) = do
+  x <- readIORef xref
+  case x of
+    Found{} -> return ()
+    Finding{best=best@(LazyMax bref), remaining} -> do
+      let nextRemaining = dropWhile (<= best) remaining
+      case nextRemaining of
+        [] -> do
+          takeStep best
+          down <- readIORef bref
+          -- Path compression
+          when (isSimple down) $ writeIORef xref down
+        y : ys -> writeIORef xref Finding{best=y, remaining=ys}
 
 cmpHelper :: Ord a => (a -> a -> b) -> (b -> Bool) -> LazyMax a -> a -> IO b
-cmpHelper f stopCond l@(LazyMax lr) r = go
+cmpHelper f stopCond l0 r = go l0
   where
-    go = readIORef lr >>= \case
-      Found x -> return $ f x r
-      Finding{best} ->
-        let res = f best r in
-        if stopCond res then return res else takeStep l >> go
+    go l@(LazyMax lr) = go'
+      where
+        go' = readIORef lr >>= \case
+          Found x -> return $ f x r
+          Finding{best} -> do
+            res <- go best
+            if stopCond res then return res else takeStep l >> go'
 
-(?<*), (?>*), (?<=*), (?>=*) :: Ord a => LazyMax a -> a -> IO Bool
-(?<*) = cmpHelper (<) not
-(?>*) = cmpHelper (>) id
-(?<=*) l r = not <$> l ?>* r
-(?>=*) l r = not <$> l ?<* r
+(?<), (?>), (?<=), (?>=) :: Ord a => LazyMax a -> a -> IO Bool
+(?<) = cmpHelper (<) not
+(?>) = cmpHelper (>) id
+(?<=) l r = not <$> l ?> r
+(?>=) l r = not <$> l ?< r
 
-(?<), (?>), (?<=), (?>=) :: Ord a => LazyMax a -> a -> Bool
-(?<) = unsafePerformIO .: (?<*)
-(?>) = unsafePerformIO .: (?>*)
-(?<=) = unsafePerformIO .: (?<=*)
-(?>=) = unsafePerformIO .: (?>=*)
-
-(*<?), (*>?), (*<=?), (*>=?) :: Ord a => a -> LazyMax a -> IO Bool
-(*<?) = flip (?>*)
-(*>?) = flip (?<*)
-(*<=?) = flip (?>=*)
-(*>=?) = flip (?<=*)
-
-(<?), (>?), (<=?), (>=?) :: Ord a => a -> LazyMax a -> Bool
-(<?) = unsafePerformIO .: (*<?)
-(>?) = unsafePerformIO .: (*>?)
-(<=?) = unsafePerformIO .: (*<=?)
-(>=?) = unsafePerformIO .: (*>=?)
+(<?), (>?), (<=?), (>=?) :: Ord a => a -> LazyMax a -> IO Bool
+(<?) = flip (?>)
+(>?) = flip (?<)
+(<=?) = flip (?>=)
+(>=?) = flip (?<=)
 
 (<&>) :: Functor f => f a -> (a -> b) -> f b
 (<&>) = flip fmap
 
 compareL :: Ord a => LazyMax a -> a -> IO Ordering
 compareL l r =
-  l ?<* r >>= \case
+  l ?< r >>= \case
     True -> return LT
-    False -> (l ?>* r) <&> \case
+    False -> (l ?> r) <&> \case
         True -> GT
         False -> EQ
 
@@ -122,7 +131,8 @@ instance Ord a => Eq (LazyMax a) where
   (==) x y = get x == get y
 instance Ord a => Ord (LazyMax a) where
   compare = ordHelper compare compareL compareR StepBoth
-  (<) = ordHelper (<) (?<*) (*<?) StepRight
-  (>) = ordHelper (>) (?>*) (*>?) StepLeft
-  (<=) = ordHelper (<=) (?<=*) (*<=?) StepLeft
-  (>=) = ordHelper (>=) (?>=*) (*>=?) StepRight
+  (<) = ordHelper (<) (?<) (<?) StepRight
+  (>) = ordHelper (>) (?>) (>?) StepLeft
+  (<=) = ordHelper (<=) (?<=) (<=?) StepLeft
+  (>=) = ordHelper (>=) (?>=) (>=?) StepRight
+  max x y = maximum' [x, y]
