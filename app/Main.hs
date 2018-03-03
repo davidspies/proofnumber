@@ -19,15 +19,15 @@ import TicTacToe
 getGame :: IO (Misere TicTacToe)
 getGame = return $ Misere TicTacToe
 
-getAgent :: (Game g, Hashable (Position g)) => g -> IO (AlphaBeta g)
-getAgent g = do
+getAgent :: Hashable (Position g) => IO (AlphaBeta g)
+getAgent = do
   seed <- Rand.withSystemRandom Rand.uniformW64
-  return $ AlphaBeta $ Ordering.random seed g
+  return $ AlphaBeta $ Ordering.random seed
 
 main :: IO ()
 main = do
   game <- getGame
-  agent <- getAgent game
+  agent <- getAgent
   runProg (GameContext game agent Reversed.empty)
 
 data GameContext g s = GameContext

@@ -10,9 +10,6 @@ import qualified Data.Vector.Mutable as MVec
 import Data.Word (Word64)
 import qualified System.Random.PCG as Rand
 
-import AlphaBeta
-import Game (Game, Position, getOptions)
-
 shuffle :: Rand.GenST s -> [a] -> ST s [a]
 shuffle g xs = do
   vec <- Vec.thaw $ Vec.fromList xs
@@ -22,10 +19,7 @@ shuffle g xs = do
     MVec.swap vec i j
   Vec.toList <$> Vec.freeze vec
 
-random :: forall g. (Game g, Hashable (Position g))
-  => Word64 -> g -> OrderingRule g
-random seed g pos = runST $ do
-    r <- Rand.initialize seed (fromIntegral $ hash pos)
-    shuffle r acts
-  where
-    acts = getOptions g pos
+random :: Hashable src => Word64 -> src -> [a] -> [a]
+random seed pos acts = runST $ do
+  r <- Rand.initialize seed (fromIntegral $ hash pos)
+  shuffle r acts

@@ -10,7 +10,7 @@ import qualified AlphaBeta.GameValue as GameValue
 import Game (Action, Game, Next(..), Position, makeMove, next)
 import Strategy (Strategy(..))
 
-type OrderingRule g = Position g -> [Action g]
+type OrderingRule g = Position g -> [Action g] -> [Action g]
 newtype AlphaBeta g = AlphaBeta{orderingRule :: OrderingRule g}
 
 instance Game g => Strategy (AlphaBeta g) g where
@@ -18,12 +18,12 @@ instance Game g => Strategy (AlphaBeta g) g where
     where
       go :: Position g -> SomeGameValue
       go pos = case next g pos of
-        Options player _ -> withSomeSing player $ (. singInstance) $ \case
+        Options player acts -> withSomeSing player $ (. singInstance) $ \case
           (SingInstance :: SingInstance player) ->
             let
               nextValues :: [SGameValue player]
               nextValues = map
                 (GameValue.setSide . go . makeMove g pos)
-                (orderingRule pos)
+                (orderingRule pos acts)
             in SomeSided $ GameValue.maximum nextValues
         End v -> SomePrim v
