@@ -1,17 +1,42 @@
+{-# LANGUAGE PolyKinds #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE UndecidableInstances #-}
+
 module Player
-    ( Player(..)
+    ( Opposite
+    , Player(..)
     , PlayerMap
+    , Sing(..)
+    , SPlayer
     , (!)
     , fromList
     , insert
     , opposite
+    , proveSingIOpposite
     ) where
 
+import Data.Constraint (Dict(Dict))
 import Data.List (foldl')
+import Data.Singletons.TH
 import Prelude hiding (Either(..))
 
-data Player = Left | Right
-  deriving (Show)
+$(singletons [d|
+  data Player = Left | Right
+    deriving (Show)
+  |])
+
+$(promote [d|
+  opposite :: Player -> Player
+  opposite p = case p of
+    Left  -> Right
+    Right -> Left
+  |])
+
+proveSingIOpposite :: SPlayer p -> Dict (SingI (Opposite p))
+proveSingIOpposite = \case
+  SLeft -> Dict
+  SRight -> Dict
+
 data PlayerMap a = PlayerMap a a
 
 (!) :: PlayerMap a -> Player -> a
@@ -22,11 +47,6 @@ data PlayerMap a = PlayerMap a a
 insert :: Player -> a -> PlayerMap a -> PlayerMap a
 insert Left x (PlayerMap _ r)  = PlayerMap x r
 insert Right x (PlayerMap l _) = PlayerMap l x
-
-opposite :: Player -> Player
-opposite = \case
-  Left -> Right
-  Right -> Left
 
 fromList :: [(Player, a)] -> PlayerMap a
 fromList =

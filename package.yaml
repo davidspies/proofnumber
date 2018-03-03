@@ -47,6 +47,7 @@ dependencies:
 - monad-loops
 - pcg-random
 - pointless-fun
+- singletons
 - vector
 
 library:
