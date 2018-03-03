@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -11,12 +12,14 @@ module Player
     , oppSingInstance
     ) where
 
+import Data.Hashable (Hashable)
 import Data.Singletons.TH
+import GHC.Generics (Generic)
 import Prelude hiding (Either(..))
 
 $(singletons [d|
   data Player = Left | Right
-    deriving (Show)
+    deriving (Eq, Show, Generic, Hashable)
   |])
 
 $(promote [d|

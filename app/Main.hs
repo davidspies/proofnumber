@@ -7,18 +7,17 @@ import qualified System.Random.PCG as Rand
 
 import AlphaBeta
 import qualified AlphaBeta.Ordering as Ordering
+import DotsAndBoxes
 import Game
 import Game.Display
 import Game.Value (GameValue)
-import Misere
 import Prog
 import Reversed (Reversed)
 import qualified Reversed
 import qualified Strategy
-import TicTacToe
 
-getGame :: IO (Misere TicTacToe)
-getGame = return $ Misere TicTacToe
+getGame :: IO DotsAndBoxes
+getGame = return DotsAndBoxes{nrows = 2, ncols = 2}
 
 getAgent :: Hashable (Position g) => IO (AlphaBeta g)
 getAgent = do

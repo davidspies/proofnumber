@@ -19,14 +19,16 @@ instance (Eq (Position g), Hashable (Position g), Game g)
     => Strategy (AlphaBeta g) g where
   evaluate g AlphaBeta{orderingRule} = GameValue.evaluate . go
     where
+      makeMove' = makeMove g
+      next' = next g
       go :: Position g -> SomeGameValue
-      go = memo $ \pos -> case next g pos of
+      go = memo $ \pos -> case next' pos of
         Options player acts -> withSomeSing player $ (. singInstance) $ \case
           (SingInstance :: SingInstance player) ->
             let
               nextValues :: [SGameValue player]
               nextValues = map
-                (GameValue.setSide . go . makeMove g pos)
+                (GameValue.setSide . go . makeMove' pos)
                 (orderingRule pos acts)
             in SomeSided $ GameValue.maximum nextValues
         End v -> SomePrim v
