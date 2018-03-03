@@ -64,7 +64,7 @@ playerFor = \case
 
 instance Game TicTacToe where
   data Position TicTacToe = Position Piece (Map Place Piece)
-    deriving (Generic, Hashable, Show)
+    deriving (Generic, Eq, Hashable, Show)
   newtype Action TicTacToe = Go Place
     deriving (Show)
   next TicTacToe pos = case winner pos of

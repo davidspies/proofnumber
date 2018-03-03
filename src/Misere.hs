@@ -26,5 +26,6 @@ instance Game g => Game (Misere g) where
   start (Misere g) = MiserePosition (start g)
 
 deriving instance Show (Action g) => Show (Action (Misere g))
+deriving instance Eq (Position g) => Eq (Position (Misere g))
 deriving instance Hashable (Position g) => Hashable (Position (Misere g))
 deriving instance Show (Position g) => Show (Position (Misere g))

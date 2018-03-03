@@ -3,6 +3,8 @@ module AlphaBeta
     , OrderingRule
     ) where
 
+import Data.Hashable (Hashable(..))
+import Data.HashTable.Memo (memo)
 import Data.Singletons (SingInstance(..), singInstance, withSomeSing)
 
 import AlphaBeta.GameValue (SGameValue, SomeGameValue(..))
@@ -13,11 +15,12 @@ import Strategy (Strategy(..))
 type OrderingRule g = Position g -> [Action g] -> [Action g]
 newtype AlphaBeta g = AlphaBeta{orderingRule :: OrderingRule g}
 
-instance Game g => Strategy (AlphaBeta g) g where
-  evaluate g AlphaBeta{orderingRule} x = GameValue.evaluate (go x)
+instance (Eq (Position g), Hashable (Position g), Game g)
+    => Strategy (AlphaBeta g) g where
+  evaluate g AlphaBeta{orderingRule} = GameValue.evaluate . go
     where
       go :: Position g -> SomeGameValue
-      go pos = case next g pos of
+      go = memo $ \pos -> case next g pos of
         Options player acts -> withSomeSing player $ (. singInstance) $ \case
           (SingInstance :: SingInstance player) ->
             let

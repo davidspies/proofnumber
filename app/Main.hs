@@ -9,11 +9,12 @@ import AlphaBeta
 import qualified AlphaBeta.Ordering as Ordering
 import Game
 import Game.Display
+import Game.Value (GameValue)
 import Misere
 import Prog
 import Reversed (Reversed)
 import qualified Reversed
-import Strategy
+import qualified Strategy
 import TicTacToe
 
 getGame :: IO (Misere TicTacToe)
@@ -28,15 +29,15 @@ main :: IO ()
 main = do
   game <- getGame
   agent <- getAgent
-  runProg (GameContext game agent Reversed.empty)
+  runProg (GameContext game Reversed.empty (Strategy.evaluate game agent))
 
-data GameContext g s = GameContext
-  { cgame   :: g
-  , cstrat  :: s
-  , history :: Reversed (Action g)
+data GameContext g = GameContext
+  { cgame    :: g
+  , history  :: Reversed (Action g)
+  , evaluate :: Position g -> GameValue
   }
 
-instance (Display g, Strategy s g) => Prog (GameContext g s) where
+instance Display g => Prog (GameContext g) where
   display GameContext{..} =
     let pos = playGame cgame history in
     case next cgame pos of
@@ -63,13 +64,13 @@ instance (Display g, Strategy s g) => Prog (GameContext g s) where
           am = actionMap cgame pos
           analyzeOption =
             ( option{name = "analyze", orFirstLetter = True}
-            , Info $ displayGameValue cgame $ evaluate cgame cstrat pos
+            , Info $ displayGameValue cgame $ evaluate pos
             )
           analyzeMove (name, act) =
             name ++ ": " ++
             displayGameValue
               cgame
-              (evaluate cgame cstrat (makeMove cgame pos act))
+              (evaluate (makeMove cgame pos act))
           analyzeMovesOption =
             ( option{name = "move-analysis", orFirstLetter = True}
             , Info $ unlines $ map analyzeMove am
