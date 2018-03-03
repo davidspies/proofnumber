@@ -15,10 +15,12 @@ extra-source-files:
 # category:            games
 
 default-extensions:
+- DataKinds
 - DeriveGeneric
 - FlexibleContexts
 - FlexibleInstances
 - FunctionalDependencies
+- GADTs
 - GeneralizedNewtypeDeriving
 - LambdaCase
 - NamedFieldPuns
@@ -37,6 +39,7 @@ ghc-options: -Werror -Wall
 
 dependencies:
 - base >= 4.7 && < 5
+- constraints
 - containers
 - dlist
 - hashable

@@ -4,7 +4,6 @@ module LazyMax.Internal
     ( LazyMax
     , get
     , maximum
-    , maximum'
     , pure
     ) where
 
@@ -19,12 +18,9 @@ data LazyMaxI a =
   Finding{best :: LazyMax a, remaining :: [LazyMax a]} | Found a
 newtype LazyMax a = LazyMax (IORef (LazyMaxI a))
 
-maximum :: (HasCallStack, Ord a) => [a] -> LazyMax a
-maximum = maximum' . map pure
-
-maximum' :: (HasCallStack, Ord a) => [LazyMax a] -> LazyMax a
-maximum' = \case
-  [] -> error "*** Exception: maximum': empty list"
+maximum :: (HasCallStack, Ord a) => [LazyMax a] -> LazyMax a
+maximum = \case
+  [] -> error "*** Exception: maximum: empty list"
   (best : remaining) -> LazyMax $ unsafePerformIO $ newIORef Finding{..}
 
 pure :: a -> LazyMax a
@@ -135,4 +131,4 @@ instance Ord a => Ord (LazyMax a) where
   (>) = ordHelper (>) (?>) (>?) StepLeft
   (<=) = ordHelper (<=) (?<=) (<=?) StepLeft
   (>=) = ordHelper (>=) (?>=) (>=?) StepRight
-  max x y = maximum' [x, y]
+  max x y = maximum [x, y]
