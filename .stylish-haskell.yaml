@@ -222,9 +222,11 @@ newline: native
 language_extensions:
 - ConstraintKinds
 - DataKinds
+- DefaultSignatures
 - ExistentialQuantification
 - FlexibleContexts
 - FunctionalDependencies
+- InstanceSigs
 - LambdaCase
 - MultiParamTypeClasses
 - NamedFieldPuns

@@ -16,13 +16,16 @@ extra-source-files:
 
 default-extensions:
 - DataKinds
+- DefaultSignatures
 - DeriveGeneric
 - FlexibleContexts
 - FlexibleInstances
 - FunctionalDependencies
 - GADTs
 - GeneralizedNewtypeDeriving
+- InstanceSigs
 - LambdaCase
+- MultiParamTypeClasses
 - NamedFieldPuns
 - Rank2Types
 - ScopedTypeVariables
@@ -39,12 +42,9 @@ ghc-options: -Werror -Wall
 
 dependencies:
 - base >= 4.7 && < 5
-- constraints
 - containers
-- dlist
 - hashable
 - MissingH
-- monad-loops
 - pcg-random
 - pointless-fun
 - singletons
@@ -63,6 +63,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - proofnumber
+    - monad-loops
 
 tests:
   proofnumber-test:
