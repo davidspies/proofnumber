@@ -38,7 +38,7 @@ default-extensions:
 # common to point users to the README.md file.
 description:         Please see the README on Github at <https://github.com/davidspies/proofnumber#readme>
 
-ghc-options: -Werror -Wall
+ghc-options: -Wall
 
 dependencies:
 - base >= 4.7 && < 5
@@ -48,6 +48,7 @@ dependencies:
 - memo-hashtables
 - pcg-random
 - pointless-fun
+- reflection
 - singletons
 - vector
 

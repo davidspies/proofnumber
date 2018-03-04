@@ -2,7 +2,10 @@
 
 module Main where
 
+import Control.Monad.IO.Class (MonadIO)
 import Data.Hashable (Hashable)
+import Data.Proxy (Proxy)
+import Data.Reflection (Reifies, reify)
 import qualified System.Random.PCG as Rand
 
 import AlphaBeta
@@ -16,8 +19,10 @@ import Reversed (Reversed)
 import qualified Reversed
 import qualified Strategy
 
-getGame :: IO DotsAndBoxes
-getGame = return DotsAndBoxes{nrows = 2, ncols = 2}
+withGame :: MonadIO m
+  => (forall gs. Reifies gs GridSize => DotsAndBoxes gs -> m a) -> m a
+withGame cont = reify GridSize{nrows=3, ncols=2} $ \(_ :: Proxy gs) ->
+  cont (DotsAndBoxes :: DotsAndBoxes gs)
 
 getAgent :: Hashable (Position g) => IO (AlphaBeta g)
 getAgent = do
@@ -25,8 +30,7 @@ getAgent = do
   return $ AlphaBeta $ Ordering.random seed
 
 main :: IO ()
-main = do
-  game <- getGame
+main = withGame $ \game -> do
   agent <- getAgent
   runProg (GameContext game Reversed.empty (Strategy.evaluate game agent))
 

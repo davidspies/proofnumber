@@ -1,28 +1,31 @@
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module DotsAndBoxes.Display () where
 
 import Data.List (intercalate)
 import qualified Data.Map as Map
-import qualified Data.Set as Set
+import Data.Reflection (Reifies, reflect)
 
-import DotsAndBoxes.Internal
+import qualified DotsAndBoxes.EdgeVector as EdgeVector
+import DotsAndBoxes.Game
 import Game (getOptions)
 import Game.Display
 
-instance Display DotsAndBoxes where
-  displayPosition g@DotsAndBoxes{..} Position{..} = unlines (hrow 0 : [
+instance Reifies gs GridSize => Display (DotsAndBoxes gs) where
+  displayPosition g Position{..} = unlines (hrow 0 : [
       vrow row ++ "\n" ++ hrow row
       | row <- [1..nrows]
     ]) ++ gameInfo
     where
+      GridSize{..} = reflect g
       strFor :: Direction -> String
       strFor = \case {H -> "---"; V -> " | "}
-      printEdge :: Edge -> String
+      printEdge :: Edge gs -> String
       printEdge e@Edge{dir}
-        | e `Set.member` edges = strFor dir
-        | otherwise = showPadded (edgeNum g e)
+        | EdgeVector.member e edges = strFor dir
+        | otherwise = showPadded (edgeNum e)
       hrow :: Int -> String
       hrow r =
         " +" ++
@@ -38,12 +41,12 @@ instance Display DotsAndBoxes where
         , "Turn: " ++ show turn
         ]
   actionMap g pos =
-    map (\a@(Action e) -> (show $ edgeNum g e, a)) (getOptions g pos)
+    map (\a@(Action e) -> (show $ edgeNum e, a)) (getOptions g pos)
 
-edgeNum :: DotsAndBoxes -> Edge -> Int
-edgeNum g = (m Map.!)
+edgeNum :: Reifies gs GridSize => Edge gs -> Int
+edgeNum = (m Map.!)
   where
-    m = Map.fromList $ zip (allPositions g) [1..]
+    m = Map.fromList $ zip allPositions [1..]
 
 showPadded :: Int -> String
 showPadded n =

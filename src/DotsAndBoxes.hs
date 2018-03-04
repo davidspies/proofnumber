@@ -1,6 +1,7 @@
 module DotsAndBoxes
     ( DotsAndBoxes(..)
+    , GridSize(..)
     ) where
 
 import DotsAndBoxes.Display ()
-import DotsAndBoxes.Internal
+import DotsAndBoxes.Game
