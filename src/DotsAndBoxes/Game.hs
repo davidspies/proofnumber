@@ -23,7 +23,7 @@ import DotsAndBoxes.EdgeVector (EdgeVector)
 import qualified DotsAndBoxes.EdgeVector as EdgeVector
 import DotsAndBoxes.Internal
 import Game (Game(..), Next(..))
-import Game.Value (GameValue, win, zeroGame)
+import Game.Value (GameValue, gameValue)
 import Orphans ()
 import Player (Player)
 import qualified Player
@@ -54,11 +54,10 @@ boxesCompleted Edge{row, col, dir} es = case dir of
 hasEdge :: Reifies gs GridSize => Position (DotsAndBoxes gs) -> Edge gs -> Bool
 hasEdge Position{edges} = (`EdgeVector.member` edges)
 
-score :: Position (DotsAndBoxes gs) -> GameValue
-score Position{..} = case compare leftScore rightScore of
-  LT -> win Player.Right
-  EQ -> zeroGame
-  GT -> win Player.Left
+score :: forall gs. Reifies gs GridSize
+  => Position (DotsAndBoxes gs) -> GameValue
+score Position{..} =
+    gameValue Player.Left $ fromIntegral (leftScore - rightScore)
 
 instance Reifies gs GridSize => Game (DotsAndBoxes gs) where
   newtype Action (DotsAndBoxes gs) = Action (Edge gs)
