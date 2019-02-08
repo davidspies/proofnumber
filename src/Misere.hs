@@ -2,8 +2,9 @@ module Misere
     ( Misere(..)
     ) where
 
+import DSpies.Prelude hiding (negate)
+
 import Data.Hashable (Hashable)
-import Prelude hiding (negate)
 
 import Game (Game(..), Next(..))
 import Game.Display (Display)

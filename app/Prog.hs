@@ -1,5 +1,3 @@
-{-# LANGUAGE RecordWildCards #-}
-
 module Prog
     ( Prog(..)
     , Operate(..)
@@ -8,12 +6,10 @@ module Prog
     , runProg
     ) where
 
-import Control.Monad (when)
+import DSpies.Prelude
+
 import Control.Monad.Loops (untilJust)
 import Data.Char (toLower)
-import Data.List (find)
-import Data.Maybe (isNothing)
-import GHC.Stack (HasCallStack)
 
 data Option = Option
   { name          :: String

@@ -1,10 +1,8 @@
-{-# LANGUAGE RecordWildCards #-}
-
 module Main where
 
-import Control.Monad.IO.Class (MonadIO)
+import DSpies.Prelude
+
 import Data.Hashable (Hashable)
-import Data.Proxy (Proxy)
 import Data.Reflection (Reifies, reify)
 import qualified System.Random.PCG as Rand
 

@@ -7,8 +7,7 @@ module Game.Value
     , zeroGame
     ) where
 
-import Data.Function.Pointless ((.:))
-import Prelude hiding (Either(..))
+import DSpies.Prelude hiding (Either(..))
 
 import Game.Value.Internal
 import Player (Player(..))

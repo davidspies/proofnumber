@@ -1,6 +1,4 @@
 {-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
@@ -14,10 +12,10 @@ module DotsAndBoxes.Game
     , allPositions
     ) where
 
+import DSpies.Prelude
+
 import Data.Hashable (Hashable)
-import Data.Proxy (Proxy(Proxy))
 import Data.Reflection (Reifies, reflect)
-import GHC.Generics (Generic)
 
 import DotsAndBoxes.EdgeVector (EdgeVector)
 import qualified DotsAndBoxes.EdgeVector as EdgeVector

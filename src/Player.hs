@@ -12,10 +12,10 @@ module Player
     , oppSingInstance
     ) where
 
+import DSpies.Prelude hiding (Either(..))
+
 import Data.Hashable (Hashable)
 import Data.Singletons.TH
-import GHC.Generics (Generic)
-import Prelude hiding (Either(..))
 
 $(singletons [d|
   data Player = Left | Right

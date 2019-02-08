@@ -3,6 +3,8 @@ module AlphaBeta
     , OrderingRule
     ) where
 
+import DSpies.Prelude
+
 import Data.Hashable (Hashable(..))
 import Data.HashTable.Memo (memo)
 import Data.Singletons (SingInstance(..), singInstance, withSomeSing)

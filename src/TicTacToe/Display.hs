@@ -2,10 +2,10 @@
 
 module TicTacToe.Display() where
 
+import DSpies.Prelude hiding (Either(..))
+
 import qualified Data.Map as Map
-import Data.Maybe (catMaybes)
 import Data.String.Utils (replace)
-import Prelude hiding (Either(..))
 import Text.Printf (PrintfType, printf)
 
 import Game (Game(..), Next(End, Options))

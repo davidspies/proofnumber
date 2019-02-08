@@ -2,6 +2,8 @@ module AlphaBeta.Ordering
     ( random
     ) where
 
+import DSpies.Prelude
+
 import Control.Monad (forM_)
 import Control.Monad.ST (ST, runST)
 import Data.Hashable (Hashable, hash)

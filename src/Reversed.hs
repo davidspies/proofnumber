@@ -8,9 +8,8 @@ module Reversed
     , tryUnsnoc
     ) where
 
-import GHC.Stack (HasCallStack)
-import Prelude hiding (init, null)
-import qualified Prelude as P
+import DSpies.Prelude hiding (empty, init, null, toList)
+import qualified DSpies.Prelude as P
 
 newtype Reversed a = Reversed [a]
 

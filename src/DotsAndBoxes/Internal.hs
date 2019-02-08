@@ -6,8 +6,9 @@ module DotsAndBoxes.Internal
     , Edge(..)
     ) where
 
+import DSpies.Prelude
+
 import Data.Hashable (Hashable)
-import GHC.Generics (Generic)
 
 data Direction = V | H
   deriving (Eq, Ord, Show, Generic, Hashable)

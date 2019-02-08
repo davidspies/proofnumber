@@ -1,5 +1,3 @@
-{-# LANGUAGE RecordWildCards #-}
-
 module LazyMax.Internal
     ( LazyMax
     , get
@@ -7,11 +5,9 @@ module LazyMax.Internal
     , pure
     ) where
 
-import Control.Monad (when)
-import Data.Function.Pointless ((.:))
+import DSpies.Prelude hiding (maximum, pure)
+
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
-import GHC.Stack (HasCallStack)
-import Prelude hiding (maximum, pure)
 import System.IO.Unsafe (unsafePerformIO)
 
 data LazyMaxI a =
@@ -78,9 +74,6 @@ cmpHelper f stopCond l0 r = go l0
 (>?) = flip (?<)
 (<=?) = flip (?>=)
 (>=?) = flip (?<=)
-
-(<&>) :: Functor f => f a -> (a -> b) -> f b
-(<&>) = flip fmap
 
 compareL :: Ord a => LazyMax a -> a -> IO Ordering
 compareL l r =

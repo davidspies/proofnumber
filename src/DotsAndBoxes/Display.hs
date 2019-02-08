@@ -1,10 +1,10 @@
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module DotsAndBoxes.Display () where
 
-import Data.List (intercalate)
+import DSpies.Prelude
+
 import qualified Data.Map as Map
 import Data.Reflection (Reifies, reflect)
 

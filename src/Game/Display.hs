@@ -2,6 +2,8 @@ module Game.Display
     ( Display(..)
     ) where
 
+import DSpies.Prelude
+
 import Game
 import Game.Value (GameValue)
 

@@ -8,12 +8,13 @@ module TicTacToe.Internal
     , allPlaces
     ) where
 
+import DSpies.Prelude hiding (Either(..))
+
 import Data.Hashable (Hashable)
 import Data.List (find)
 import Data.Map (Map)
 import qualified Data.Map as Map
 import GHC.Generics (Generic)
-import Prelude hiding (Either(..))
 
 import Game (Game(..), Next(End, Options))
 import Game.Value (gameValue, zeroGame)

@@ -2,7 +2,7 @@ module Minimax
     ( Minimax(..)
     ) where
 
-import GHC.Stack (HasCallStack)
+import DSpies.Prelude
 
 import Game (Game, Next(..), makeMove, next)
 import Game.Value (utility)

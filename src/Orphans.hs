@@ -2,10 +2,10 @@
 
 module Orphans () where
 
+import DSpies.Prelude
+
 import Data.Hashable (Hashable(..))
-import Data.Map (Map)
 import qualified Data.Map as Map
-import Data.Set (Set)
 import qualified Data.Set as Set
 
 instance (Hashable k, Hashable v) => Hashable (Map k v) where

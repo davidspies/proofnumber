@@ -1,3 +1,5 @@
+{-# LANGUAGE DefaultSignatures #-}
+
 module AlphaBeta.GameValue
     ( SomeGameValue(..)
     , SGameValue
@@ -6,10 +8,10 @@ module AlphaBeta.GameValue
     , setSide
     ) where
 
+import DSpies.Prelude hiding (maximum)
+
 import Data.Coerce (coerce)
-import Data.Function.Pointless ((.:))
 import Data.Singletons (SingI, SingInstance(..), fromSing, sing)
-import Prelude hiding (Either(..), maximum)
 
 import qualified Game.Value as Primitive
 import LazyMax (LazyMax)

@@ -5,9 +5,10 @@ module DotsAndBoxes.EdgeVector
     , member
     ) where
 
+import DSpies.Prelude hiding (empty, insert)
+
 import Data.Bits (setBit, testBit)
 import Data.Hashable (Hashable)
-import Data.Proxy (Proxy(Proxy))
 import Data.Reflection (Reifies, reflect)
 
 import DotsAndBoxes.Internal

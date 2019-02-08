@@ -4,7 +4,7 @@ github:              "davidspies/proofnumber"
 license:             BSD3
 author:              "David Spies"
 maintainer:          "dnspies@gmail.com"
-copyright:           "2018"
+copyright:           "2019 David Spies"
 
 extra-source-files:
 - README.md
@@ -12,45 +12,68 @@ extra-source-files:
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
-# category:            games
+# category: Web
 
-default-extensions:
-- DataKinds
-- DefaultSignatures
-- DeriveGeneric
-- FlexibleContexts
-- FlexibleInstances
-- FunctionalDependencies
-- GADTs
-- GeneralizedNewtypeDeriving
-- InstanceSigs
-- LambdaCase
-- MultiParamTypeClasses
-- NamedFieldPuns
-- Rank2Types
-- ScopedTypeVariables
-- StandaloneDeriving
-- TypeFamilies
-- ViewPatterns
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on Github at <https://github.com/davidspies/proofnumber#readme>
-
-ghc-options: -Wall
+description:         Please see the README on GitHub at <https://github.com/davidspies/proofnumber#readme>
 
 dependencies:
+- dspies-prelude
 - base >= 4.7 && < 5
 - containers
 - hashable
 - MissingH
 - memo-hashtables
 - pcg-random
-- pointless-fun
 - reflection
 - singletons
 - vector
+
+ghc-options:
+- -Werror
+- -Wall
+
+default-extensions:
+- BangPatterns
+- ConstraintKinds
+- DataKinds
+- DeriveFoldable
+- DeriveFunctor
+- DeriveGeneric
+- DeriveLift
+- DeriveTraversable
+- DerivingStrategies
+- DerivingVia
+- EmptyCase
+- ExistentialQuantification
+- FlexibleContexts
+- FlexibleInstances
+- FunctionalDependencies
+- GADTs
+- GeneralizedNewtypeDeriving
+- InstanceSigs
+- KindSignatures
+- LambdaCase
+- MultiParamTypeClasses
+- MultiWayIf
+- NamedFieldPuns
+- NoImplicitPrelude
+- OverloadedStrings
+- QuantifiedConstraints
+- RankNTypes
+- RecordWildCards
+- ScopedTypeVariables
+- StandaloneDeriving
+- TupleSections
+- TypeApplications
+- TypeFamilyDependencies
+- TypeFamilies
+- TypeOperators
+- TypeSynonymInstances
+- ViewPatterns
 
 library:
   source-dirs: src
@@ -69,7 +92,7 @@ executables:
 
 tests:
   proofnumber-test:
-    main:                Spec.hs
+    main:                Tasty.hs
     source-dirs:         test
     ghc-options:
     - -threaded
@@ -77,3 +100,7 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - proofnumber
+    - hspec
+    - tasty
+    - tasty-discover
+    - tasty-hspec
